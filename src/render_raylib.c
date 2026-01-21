@@ -16,8 +16,6 @@ void render_init() {
 void render_draw(phys_system* system, double dt) {
     for (int step = 0; step < PHYSICS_STEPS; step++) {
         integrate_step_system(system, LEAPFROG, dt);
-        grav_force_system(system);
-        accel_system(system);
     }
 
 	BeginDrawing();
