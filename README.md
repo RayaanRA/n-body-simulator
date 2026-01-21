@@ -65,4 +65,4 @@ If compiled with raylib:
 
 ## Demonstration
 
-[Example CSV output](media/csv_output.png)
+![Example CSV output](media/csv_output.png)
