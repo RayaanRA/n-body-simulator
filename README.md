@@ -62,7 +62,3 @@ If compiled with raylib:
 
 ## Notes
 - Precompute initial acceleration before the first integration step
-
-## Demonstration
-
-![Example CSV output](media/csv_output.png)
