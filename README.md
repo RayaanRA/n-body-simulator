@@ -65,6 +65,4 @@ If compiled with raylib:
 
 ## Demonstration
 
-[Three-body simulation demo](media/three_body.mp4)
-[Twelve-body simulation demo](media/twelve_body.mp4)
 [Example CSV output](media/csv_output.png)
