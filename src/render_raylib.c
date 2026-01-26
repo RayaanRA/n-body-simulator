@@ -14,10 +14,6 @@ void render_init() {
 }
 
 void render_draw(phys_system* system, double dt) {
-    for (int step = 0; step < PHYSICS_STEPS; step++) {
-        integrate_step_system(system, LEAPFROG, dt);
-    }
-
 	BeginDrawing();
 	DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){0,0,0,15});
 
