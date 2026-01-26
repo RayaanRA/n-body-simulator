@@ -1,8 +1,9 @@
 #include "cphys.h"
 #include "sim.h"
-#include <stdio.h>
+#include "log.h"
 #include <stdlib.h>
-#include <time.h>
+
+#define PHYSICS_STEPS 10
 
 #ifdef USE_RAYLIB
 #include "render_raylib.h"
@@ -17,18 +18,6 @@ int main(int argc, char **argv) {
     char* init_file_name = argv[1];
     double dt = atof(argv[2]);
     int steps = atoi(argv[3]);
-    char* csv_file_name = (argc >= 5) ? argv[4] : NULL;
-
-    FILE *csv_file = NULL;
-    if (csv_file_name) {
-        csv_file = fopen(csv_file_name, "a");
-        if (!csv_file) {
-            printf("Failed to open CSV file %s\n", csv_file_name);
-            return 1;
-        }
-        // CSV header
-        fprintf(csv_file, "step,energy,momentum_x,momentum_y");
-    }
 
     FILE *file = fopen(init_file_name, "r");
     if (!file) return 1;
@@ -47,13 +36,8 @@ int main(int argc, char **argv) {
     }
     fclose(file);
 
-    if (csv_file) {
-        for (int i = 0; i < N; i++) {
-            fprintf(csv_file, ",body%d_pos_x,body%d_pos_y,body%d_vel_x,body%d_vel_y",
-                    i, i, i, i);
-        }
-        fprintf(csv_file, "\n");
-    }
+    char* csv_file_name = (argc >= 5) ? argv[4] : NULL;
+    FILE* csv_file = init_csv(csv_file_name, N);
 
     struct sim_ctx sim;
     sim_init(&sim, bodies, N, softening, G, dt, LEAPFROG);
@@ -64,20 +48,13 @@ int main(int argc, char **argv) {
     int step = 0;
     render_init();
     while (!WindowShouldClose()) {
-        render_draw(&sim.system, sim.dt);
-
-        if (csv_file) {
-            phys_vector2 momentum = system_total_momentum(&sim.system);
-            double energy = system_total_energy(&sim.system);
-
-            fprintf(csv_file, "%d,%f,%f,%f", step, energy, momentum.x, momentum.y);
-            for (int i = 0; i < N; i++) {
-                fprintf(csv_file, ",%f,%f,%f,%f", sim.system.bodies[i].pos.x, sim.system.bodies[i].pos.y,
-                        sim.system.bodies[i].vel.x, sim.system.bodies[i].vel.y);
-            }
-            fprintf(csv_file, "\n");
+        for (int i = 0; i < PHYSICS_STEPS; i++) {
+            integrate_step_system(&sim.system, LEAPFROG, dt);
+            log_data(csv_file, step, &sim);
             step++;
         }
+        render_draw(&sim.system, dt);
+
     }
     render_close();
 #else
@@ -85,23 +62,14 @@ int main(int argc, char **argv) {
         sim_step(&sim);
 
         if (csv_file) {
-            phys_vector2 momentum = system_total_momentum(&sim.system);
-            double energy = system_total_energy(&sim.system);
-
-            fprintf(csv_file, "%d,%f,%f,%f", step, energy, momentum.x, momentum.y);
-            for (int i = 0; i < N; i++) {
-                fprintf(csv_file, ",%f,%f,%f,%f", sim.system.bodies[i].pos.x, sim.system.bodies[i].pos.y,
-                        sim.system.bodies[i].vel.x, sim.system.bodies[i].vel.y);
-            }
-            fprintf(csv_file, "\n");
+            log_data(csv_file, step, &sim);
         }
     }
 #endif
 
     if (csv_file) {
         clock_t end_time = clock();
-        double runtime_sec = (double)(end_time - start_time) / CLOCKS_PER_SEC;
-        fprintf(csv_file, "# Simulation runtime (seconds): %f\n", runtime_sec);
+        log_time(csv_file, start_time, end_time);
         fclose(csv_file);
     }
 
