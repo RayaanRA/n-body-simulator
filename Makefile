@@ -4,10 +4,10 @@ SRC_DIR = src
 INCLUDE_DIR = include
 
 CC = gcc
-CFLAGS = -Wall -I$(CPHYS_INCLUDE_DIR) -I$(INCLUDE_DIR)
+CFLAGS = -Wall -I$(CPHYS_INCLUDE_DIR) -I$(INCLUDE_DIR) -g
 LDFLAGS = $(CPHYS_LIB) -lm
 
-SRC = $(SRC_DIR)/main.c $(SRC_DIR)/sim.c $(SRC_DIR)/log.c
+SRC = $(SRC_DIR)/main.c $(SRC_DIR)/sim.c $(SRC_DIR)/log.c $(SRC_DIR)/config.c
 TARGET = nbody_sim
 
 USE_RAYLIB ?= 0
