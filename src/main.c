@@ -1,7 +1,7 @@
 #include "cphys.h"
 #include "sim.h"
 #include "log.h"
-#include <stdlib.h>
+#include "config.h"
 
 #define PHYSICS_STEPS 10
 
@@ -15,29 +15,20 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char* init_file_name = argv[1];
+    char* config_file_name = argv[1];
     double dt = atof(argv[2]);
     int steps = atoi(argv[3]);
 
-    FILE *file = fopen(init_file_name, "r");
-    if (!file) return 1;
-
     int N;
     double G, softening;
-    fscanf(file, "N %d\n", &N);
-    fscanf(file, "G %lf\n", &G);
-    fscanf(file, "softening %lf\n", &softening);
-
-    phys_body* bodies = malloc(sizeof(phys_body) * N);
-    for (int i = 0; i < N; i++) {
-        double x, y, vx, vy, m;
-        fscanf(file, "%lf %lf %lf %lf %lf\n", &x, &y, &vx, &vy, &m);
-        phys_init_body(&bodies[i], (phys_vector2){x, y}, (phys_vector2){vx, vy}, (phys_vector2){0,0}, m);
-    }
-    fclose(file);
+    phys_body* bodies = init_bodies(config_file_name, &N, &G, &softening);
+    if (!bodies) return 1;
 
     char* csv_file_name = (argc >= 5) ? argv[4] : NULL;
-    FILE* csv_file = init_csv(csv_file_name, N);
+    FILE* csv_file = NULL;
+    if (csv_file_name) {
+        csv_file = init_csv(csv_file_name, N);       
+    }
 
     struct sim_ctx sim;
     sim_init(&sim, bodies, N, softening, G, dt, LEAPFROG);
@@ -50,7 +41,9 @@ int main(int argc, char **argv) {
     while (!WindowShouldClose()) {
         for (int i = 0; i < PHYSICS_STEPS; i++) {
             integrate_step_system(&sim.system, LEAPFROG, dt);
-            log_data(csv_file, step, &sim);
+            if (csv_file) {
+                log_data(csv_file, step, &sim);                
+            }
             step++;
         }
         render_draw(&sim.system, dt);
