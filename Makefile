@@ -3,8 +3,10 @@ CPHYS_INCLUDE_DIR = ../cphys/include
 SRC_DIR = src
 INCLUDE_DIR = include
 
+OPTFLAG ?= -O0
+
 CC = gcc
-CFLAGS = -Wall -I$(CPHYS_INCLUDE_DIR) -I$(INCLUDE_DIR) -g
+CFLAGS = -Wall -I$(CPHYS_INCLUDE_DIR) -I$(INCLUDE_DIR) $(OPTFLAG) -g
 LDFLAGS = $(CPHYS_LIB) -lm
 
 SRC = $(SRC_DIR)/main.c $(SRC_DIR)/sim.c $(SRC_DIR)/log.c $(SRC_DIR)/config.c

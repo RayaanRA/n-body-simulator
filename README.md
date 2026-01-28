@@ -2,7 +2,7 @@
 A customizable N-body simulator built on top of the [cphys](https://github.com/RayaanRA/cphys) library. 
 It supports configurable initial conditions, CSV output, and optional visualization with [raylib](https://github.com/raysan5/raylib).
 
-## Installation
+## Building
 
 ```bash
 git clone git@github.com:RayaanRA/n-body-simulator.git
@@ -17,6 +17,13 @@ make
 To compile with raylib:
 ```bash
 make USE_RAYLIB=1
+```
+
+### Optimization Flags
+
+The default optimization flag is `-O0`. A flag can be specified:
+```bash
+make OPTFLAG=-01
 ```
 
 ## Dependencies
